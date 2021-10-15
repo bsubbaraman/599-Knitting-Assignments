@@ -57,6 +57,9 @@ class Yarn:
         # Add an edge between this loop and the loop before it on the yarn
         # Update last_loop_id
         # Return the created loop's id and the loop
+        if loop_id is not None:
+
+
         raise NotImplementedError
 
     def __contains__(self, item: Union[int, Loop]) -> bool:

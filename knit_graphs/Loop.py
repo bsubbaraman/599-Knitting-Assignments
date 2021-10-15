@@ -37,7 +37,12 @@ class Loop:
         :param stack_position: The position to insert the parent into, if None add on top of the stack
         """
         # TODO: Implement based on Description
-        raise NotImplementedError
+        if stack_position is not None: #check if position < len(parent_loops)?
+            self.parent_loops.insert(stack_position, parent)
+        else: # if none, we add to the top of the stack i.e. end of the List
+            self.add_parent_loop(parent)
+        # raise NotImplementedError
+        # return?
 
     @property
     def loop_id(self) -> int:
