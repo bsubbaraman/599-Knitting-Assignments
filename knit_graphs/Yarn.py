@@ -53,14 +53,40 @@ class Yarn:
             it defaults to 1 more than last put on the knit Graph (CHANGE)
         :return: the loop_id added to the yarn, the loop added to the yarn
         """
-        # TODO: Implement
         # If Loop Id is None generate a new id from provided loop or based on last id on this yarn
         # If no loop is provided create one with loop id and twisted parameter
         # Add Loop Id as a node to the yarn_graph and add parameter keyed to it at "loop" to store the loop
         # Add an edge between this loop and the loop before it on the yarn
         # Update last_loop_id
         # Return the created loop's id and the loop
-        if loop_id is not None:
+
+        if loop_id is None:
+            if loop is None:
+                if self.last_loop_id is None:
+                    loop_id = 0  # first loop!
+                else:
+                    loop_id = self.last_loop_id + 1
+                loop = Loop(loop_id=loop_id, yarn_id=self.yarn_id, is_twisted=True)  # new loop is twisted
+            else:
+                loop_id = loop.loop_id  # else, loop id is the passed loop_id
+
+        # add this loop + id as a node on yarn graph
+        self.yarn_graph.add_node(loop_id)
+        self.yarn_graph.nodes[loop_id]['loop'] = loop
+
+        # add an edge to the previous loop, if there is one
+        if self.last_loop_id is not None:
+            self.yarn_graph.add_edge(self.last_loop_id, loop_id)
+
+        self.last_loop_id = loop_id  # update last loop id
+
+        return loop_id, loop
+
+
+
+
+
+
 
 
         raise NotImplementedError

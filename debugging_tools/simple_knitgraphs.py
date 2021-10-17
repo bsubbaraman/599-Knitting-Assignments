@@ -1,5 +1,5 @@
 """A set of functions that generate simple knit-graph structures useful for debugging"""
-from knit_graphs.Knit_Graph import Knit_Graph
+from knit_graphs.Knit_Graph import Knit_Graph, Pull_Direction
 from knit_graphs.Yarn import Yarn
 
 
@@ -45,8 +45,42 @@ def rib(width: int = 4, height: int = 4, rib_width: int = 1) -> Knit_Graph:
     assert width > 0
     assert height > 0
     assert rib_width <= width
-    # Todo Implement
-    raise NotImplementedError
+
+    knit_graph = Knit_Graph()
+    yarn = Yarn("yarn", knit_graph)
+    knit_graph.add_yarn(yarn)
+
+    # Add the first course of loops
+    first_course = []
+    for _ in range(0, width):
+        loop_id, loop = yarn.add_loop_to_end()
+        first_course.append(loop_id)
+        knit_graph.add_loop(loop)
+
+    # knits are FtB (as in stockinette), purls are BtF
+    # so, alternate between them based on rib_width parameter, starting with knits
+    prior_course = first_course
+    full_width = 2*rib_width  # i'm calling 'full_width' a cycle of knits & purls
+    for _ in range(1, height):
+        next_course = []
+        idx = 0
+        for parent_id in reversed(prior_course):
+            child_id, child = yarn.add_loop_to_end()
+            next_course.append(child_id)
+            knit_graph.add_loop(child)
+
+            if idx < rib_width:
+                knit_graph.connect_loops(parent_id, child_id, pull_direction=Pull_Direction.BtF)  # knit
+            elif idx < full_width:
+                knit_graph.connect_loops(parent_id, child_id, pull_direction=Pull_Direction.FtB)  # purl
+
+            idx += 1
+            if idx == full_width:
+                idx = 0  # reset the index if we've done a set of knits & purls
+
+        prior_course = next_course
+
+    return knit_graph
 
 
 def seed(width: int = 4, height=4) -> Knit_Graph:
@@ -58,8 +92,38 @@ def seed(width: int = 4, height=4) -> Knit_Graph:
     """
     assert width > 0
     assert height > 0
-    # Todo Implement
-    raise NotImplementedError
+    knit_graph = Knit_Graph()
+    yarn = Yarn("yarn", knit_graph)
+    knit_graph.add_yarn(yarn)
+
+    # Add the first course of loops
+    first_course = []
+    for _ in range(0, width):
+        loop_id, loop = yarn.add_loop_to_end()
+        first_course.append(loop_id)
+        knit_graph.add_loop(loop)
+
+    # similar to rib with rib_width=1, but alternate every time
+    # the nested loops below are similar to rib(), but I use a bool instead of an idx to alternate
+    prior_course = first_course
+    knit_stitch = True
+    for _ in range(1, height):
+        next_course = []
+        for parent_id in reversed(prior_course):
+            child_id, child = yarn.add_loop_to_end()
+            next_course.append(child_id)
+            knit_graph.add_loop(child)
+
+            if knit_stitch:
+                knit_graph.connect_loops(parent_id, child_id, pull_direction=Pull_Direction.BtF)  # knit
+            else:
+                knit_graph.connect_loops(parent_id, child_id, pull_direction=Pull_Direction.FtB)  # purl
+
+            knit_stitch = not knit_stitch
+
+        prior_course = next_course
+
+    return knit_graph
 
 
 def twisted_stripes(width: int = 4, height=5, left_twists: bool = True) -> Knit_Graph:
@@ -70,7 +134,7 @@ def twisted_stripes(width: int = 4, height=5, left_twists: bool = True) -> Knit_
     :return: A knitgraph with repeating pattern of twisted stitches surrounded by knit wales
     """
     knitGraph = Knit_Graph()
-    yarn = Yarn("yarn", knit_graph)
+    yarn = Yarn("yarn", knitGraph)
     knitGraph.add_yarn(yarn)
 
     # Add the first course of loops
