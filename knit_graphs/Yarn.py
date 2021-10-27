@@ -6,6 +6,7 @@ from typing import Optional, Tuple, Union
 import networkx as networkx
 
 from knit_graphs.Loop import Loop
+from knitting_machine.Machine_State import Yarn_Carrier
 
 
 class Yarn:
@@ -21,20 +22,29 @@ class Yarn:
         The id of the last loop on the yarn, none if no loops on the yarn
     """
 
-    def __init__(self, yarn_id: str, knit_graph, last_loop: Optional[Loop] = None):
+    def __init__(self, yarn_id: str, knit_graph, last_loop: Optional[Loop] = None, carrier_id: int = 3):
         """
         A Graph structure to show the yarn-wise relationship between loops
-        :param knit_graph: THe knitgraph this yarn is used in
+        :param knit_graph: The knitgraph the yarn is used in
         :param yarn_id: the identifier for this loop
         :param last_loop: the loop to add onto this yarn at the beginning. May be none if yarn is empty.
         """
         self.knit_graph = knit_graph
+        assert 0 < carrier_id < 11, f"Invalid yarn carrier {carrier_id}"
+        self._carrier: Yarn_Carrier = Yarn_Carrier(carrier_id)
         self.yarn_graph: networkx.DiGraph = networkx.DiGraph()
         if last_loop is None:
             self.last_loop_id = None
         else:
             self.last_loop_id: int = last_loop.loop_id
         self._yarn_id: str = yarn_id
+
+    @property
+    def carrier(self) -> Yarn_Carrier:
+        """
+        :return: the yarn-carrier holding this yarn
+        """
+        return self._carrier
 
     @property
     def yarn_id(self) -> str:
