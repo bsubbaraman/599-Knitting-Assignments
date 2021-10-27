@@ -84,9 +84,10 @@ class Knit_Graph:
         self.graph.add_edge(child_loop_id, parent_loop_id)
 
         # now add the three parameters
-        self.graph.edges[child_loop_id, parent_loop_id]['pull_direction'] = pull_direction
-        self.graph.edges[child_loop_id, parent_loop_id]['depth'] = depth
-        self.graph.edges[child_loop_id, parent_loop_id]['parent_offset'] = parent_offset
+        self.graph.add_edge(parent_loop_id, child_loop_id,
+                            pull_direction=pull_direction,
+                            depth=depth,
+                            parent_offset=parent_offset)
 
         # and add parent loop to child's parent loop stack
         self.loops[child_loop_id].add_parent_loop(self.loops[parent_loop_id], stack_position)

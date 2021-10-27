@@ -110,7 +110,7 @@ class Knitout_Generator:
                 #  yarn over needle position is dependent on the current Pass_Direction and the loop_pos (index in course)
                 #  if moving from the left to right, the target needle will be the index in the course
                 #  else, it will be the index in the course subtracted from the max_needle involved in the course
-                raise NotImplementedError
+
             elif len(parent_ids) == 1:  # knit, purl, may be in cable, no needle
                 parent_id = [*parent_ids][0]
                 parent_needle = parent_loops_to_needles[parent_id]
